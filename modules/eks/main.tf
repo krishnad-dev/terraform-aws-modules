@@ -7,11 +7,40 @@ locals {
 # ---------------------------------------------------------------------------
 # Secrets encryption key
 # ---------------------------------------------------------------------------
+data "aws_caller_identity" "current" {}
+
 resource "aws_kms_key" "eks" {
   description             = "Envelope encryption for Kubernetes secrets in ${var.cluster_name}"
   deletion_window_in_days = 7
   enable_key_rotation     = true
-  tags                    = var.tags
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AccountAdministration"
+        Effect    = "Allow"
+        Principal = { AWS = "arn:${local.partition}:iam::${data.aws_caller_identity.current.account_id}:root" }
+        Action    = "kms:*"
+        Resource  = "*"
+      },
+      {
+        Sid       = "AllowEKSClusterRole"
+        Effect    = "Allow"
+        Principal = { AWS = aws_iam_role.cluster.arn }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey",
+        ]
+        Resource = "*"
+      },
+    ]
+  })
+
+  tags = var.tags
 }
 
 resource "aws_kms_alias" "eks" {

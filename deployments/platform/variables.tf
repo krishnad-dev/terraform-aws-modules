@@ -4,6 +4,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "azs" {
+  description = "Availability zones to use. Pinned explicitly so the network layout never shifts when AWS adds a new AZ."
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
 variable "environment" {
   description = "Environment name (dev, staging, prod)."
   type        = string

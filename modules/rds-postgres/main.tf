@@ -1,3 +1,32 @@
+data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
+
+resource "aws_kms_key" "rds" {
+  description             = "Encryption for RDS instance ${var.identifier} (storage, Performance Insights, master secret)"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AccountAdministration"
+        Effect    = "Allow"
+        Principal = { AWS = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root" }
+        Action    = "kms:*"
+        Resource  = "*"
+      },
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_kms_alias" "rds" {
+  name          = "alias/rds/${var.identifier}"
+  target_key_id = aws_kms_key.rds.key_id
+}
+
 resource "aws_db_subnet_group" "this" {
   name       = var.identifier
   subnet_ids = var.subnet_ids
@@ -74,13 +103,18 @@ resource "aws_db_instance" "this" {
   max_allocated_storage = var.max_allocated_storage
   storage_type          = "gp3"
   storage_encrypted     = true
+  kms_key_id            = aws_kms_key.rds.arn
 
   db_name  = var.database_name
   username = var.master_username
 
   # RDS generates the password and rotates it in Secrets Manager.
   # Nothing sensitive ever lands in Terraform state or code.
-  manage_master_user_password = true
+  manage_master_user_password   = true
+  master_user_secret_kms_key_id = aws_kms_key.rds.key_id
+
+  # Apps on EKS can log in with short-lived IAM tokens instead of a static password.
+  iam_database_authentication_enabled = true
 
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.this.id]
@@ -97,6 +131,7 @@ resource "aws_db_instance" "this" {
   auto_minor_version_upgrade      = true
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
   performance_insights_enabled    = true
+  performance_insights_kms_key_id = aws_kms_key.rds.arn
   monitoring_interval             = 60
   monitoring_role_arn             = aws_iam_role.monitoring.arn
 

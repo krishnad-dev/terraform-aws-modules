@@ -58,6 +58,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       id     = "expire-noncurrent-versions"
       status = "Enabled"
       filter {}
+      abort_incomplete_multipart_upload {
+        days_after_initiation = 7
+      }
       noncurrent_version_expiration {
         noncurrent_days = var.noncurrent_version_expiration_days
       }
@@ -70,6 +73,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       id     = "transition-to-ia"
       status = "Enabled"
       filter {}
+      abort_incomplete_multipart_upload {
+        days_after_initiation = 7
+      }
       transition {
         days          = var.transition_to_ia_days
         storage_class = "STANDARD_IA"
@@ -83,6 +89,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       id     = "expire-current-objects"
       status = "Enabled"
       filter {}
+      abort_incomplete_multipart_upload {
+        days_after_initiation = 7
+      }
       expiration {
         days = var.expiration_days
       }

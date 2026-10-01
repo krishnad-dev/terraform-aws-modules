@@ -1,13 +1,8 @@
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
 data "aws_caller_identity" "current" {}
 
 locals {
   name    = "${var.name}-${var.environment}"
   is_prod = var.environment == "prod"
-  azs     = slice(data.aws_availability_zones.available.names, 0, 3)
 }
 
 module "vpc" {
@@ -15,7 +10,7 @@ module "vpc" {
 
   name             = local.name
   cidr_block       = "10.20.0.0/16"
-  azs              = local.azs
+  azs              = var.azs
   nat_gateway_mode = local.is_prod ? "per_az" : "single"
   eks_cluster_name = local.name
 }

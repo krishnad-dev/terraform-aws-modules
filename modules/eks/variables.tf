@@ -34,7 +34,7 @@ variable "endpoint_public_access_cidrs" {
 variable "enabled_log_types" {
   description = "Control plane log types sent to CloudWatch."
   type        = list(string)
-  default     = ["api", "audit", "authenticator"]
+  default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
 
 variable "log_retention_days" {
