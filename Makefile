@@ -1,4 +1,4 @@
-MODULES := modules/vpc modules/eks modules/s3-bucket modules/rds-postgres examples/complete
+MODULES := modules/vpc modules/eks modules/s3-bucket modules/rds-postgres deployments/platform
 
 .PHONY: fmt validate lint security check
 

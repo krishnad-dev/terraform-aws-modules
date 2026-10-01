@@ -28,7 +28,7 @@ jobs:
           - modules/eks
           - modules/s3-bucket
           - modules/rds-postgres
-          - examples/complete
+          - deployments/platform
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3

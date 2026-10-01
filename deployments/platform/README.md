@@ -1,4 +1,4 @@
-# Complete Example
+# Platform Deployment
 
 Deploys VPC, EKS, S3, and RDS together. Set `environment = "prod"` for HA settings.
 

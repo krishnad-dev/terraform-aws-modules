@@ -14,7 +14,7 @@ Reusable, secure-by-default Terraform modules for an AWS platform.
 ## Quick start
 
 ```bash
-cd examples/complete
+cd deployments/platform
 terraform init && terraform apply
 ```
 

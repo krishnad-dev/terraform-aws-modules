@@ -15,7 +15,7 @@ terraform {
   # Uncomment and point at your own state bucket for real use.
   # backend "s3" {
   #   bucket       = "my-terraform-state-111122223333"
-  #   key          = "examples/complete/terraform.tfstate"
+  #   key          = "deployments/platform/terraform.tfstate"
   #   region       = "us-east-1"
   #   encrypt      = true
   #   use_lockfile = true
