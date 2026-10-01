@@ -1,0 +1,7 @@
+region      = "us-east-1"
+environment = "dev"
+name        = "platform"
+
+admin_principal_arns = [
+  "arn:aws:iam::111122223333:role/PlatformAdmins",
+]

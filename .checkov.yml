@@ -1,0 +1,17 @@
+# Documented, intentional exceptions. Every skip has a reason.
+skip-check:
+  # Flow logs and EKS logs use CloudWatch default encryption; a CMK per log group is overkill for this baseline.
+  - CKV_AWS_158
+  # Log retention is configurable (30 days default) rather than the 1-year Checkov expects.
+  - CKV_AWS_338
+  # S3 access logging and cross-region replication are left to the consumer; not every bucket needs them.
+  - CKV_AWS_18
+  - CKV_AWS_144
+  # S3 event notifications are workload-specific.
+  - CKV2_AWS_62
+  # Multi-AZ RDS and deletion protection are variables, enabled automatically for prod in the example.
+  - CKV_AWS_157
+  - CKV_AWS_293
+  # Public endpoint is disabled by default; the check can't see the variable default.
+  - CKV_AWS_39
+  - CKV_AWS_38

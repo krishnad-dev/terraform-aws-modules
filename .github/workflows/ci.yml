@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dir:
+          - modules/vpc
+          - modules/eks
+          - modules/s3-bucket
+          - modules/rds-postgres
+          - examples/complete
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: terraform init
+        working-directory: ${{ matrix.dir }}
+        run: terraform init -backend=false
+      - name: terraform validate
+        working-directory: ${{ matrix.dir }}
+        run: terraform validate
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: terraform-linters/setup-tflint@v4
+      - run: tflint --init
+      - run: tflint --recursive --config "$GITHUB_WORKSPACE/.tflint.hcl"
+
+  security:
+    name: Security scan (Checkov)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          quiet: true
+          soft_fail: false
+          config_file: .checkov.yml
